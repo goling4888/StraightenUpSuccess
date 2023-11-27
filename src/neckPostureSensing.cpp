@@ -1,41 +1,15 @@
 #include <Arduino.h>
-#include <M5StickCPlus.h>
-#include <utility/MPU6886.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiAP.h>
-#include <esp_now.h>
-
-
-#define PI 3.1415926535897932384626433832795
-#define GRAVITY 9.80665
-#define BAD_HEAD_ANGLE 30
-#define BAD_CERVICAL_ANGLE 45
+#include "neckPostureSensing.h"
 
 float accX, accY, accZ;
 float convX,convY,convZ;
 float rateCalibrationX, rateCalibrationY, rateCalibrationZ;
 float angle, badAngle;
-
 uint8_t imuID;
 int badPostureCounts;
-// Address of desk ESP32
-byte broadcastAddress[] = {0xA0,0xA3,0xB3,0x2A,0x75,0xC0};
-byte headAddr[] = {0xD4, 0xD4, 0xDA, 0xBC, 0xF6, 0xA0};
+
 byte mac[6];
-byte cervicalAddr[] = {0x64, 0xB7, 0x08, 0x80, 0xEA, 0xE4};
-
-typedef struct struct_message {
-    uint8_t id; // must be unique for each sender board
-    float data;
-} struct_message;
-
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
-void calibrateAccel();
-void getAngle();
-
 struct_message myData;
-
 esp_now_peer_info_t peerInfo;
 
 // callback when data is sent
@@ -134,14 +108,13 @@ void setup() {
     return;
   }
 
-
   /*
-    Initialize M5-Stick C Plus
+    Initialize and Calibrate M5-Stick C Plus
   */
   M5.begin();
   M5.IMU.Init();
-  //M5.IMU.SetAccelFsr(M5.IMU.AFS_16G);
   calibrateAccel();
+
 }
 
 void loop() {

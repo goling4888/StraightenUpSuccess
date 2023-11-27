@@ -1,42 +1,14 @@
 #include <Arduino.h>
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WiFiAP.h>
-#include <esp_now.h>
-
-// // Motor Pins
-// const int MOTOR_1 = 1;
-// const int MOTOR_2 = 2;
-
-void driveMotor();
-void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len);
-
-// Motor A
-int motor1Pin1 = 27; 
-int motor1Pin2 = 26; 
-int enable1Pin = 14; 
-
-// Setting PWM properties
-const int freq = 30000;
-const int pwmChannel = 0;
-const int resolution = 8;
-int dutyCycle = 200;
-
-// Define structure of received messages
-typedef struct struct_message {
-  uint8_t id;
-  float data;
-}struct_message;
+#include "deskArm.h"
 
 struct_message myData;
-
 struct_message board1;
 struct_message board2;
 struct_message boardsStruct[2] = {board1, board2};
 
 int badPostureCounts;
-
 int initTime;
+
 // Driving Motor code
 void driveMotor()
 {
