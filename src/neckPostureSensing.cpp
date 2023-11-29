@@ -6,7 +6,8 @@ float convX,convY,convZ;
 float rateCalibrationX, rateCalibrationY, rateCalibrationZ;
 float angle, badAngle;
 uint8_t imuID;
-int badPostureCounts;
+bool badPosture;
+int badPostureCounts, goodPostureCounts;
 
 byte mac[6];
 struct_message myData;
@@ -63,6 +64,15 @@ void getAngle()
 
 }
 
+bool isBad(float angle)
+{
+  return (angle*-1) >=badAngle || angle >= badAngle;
+}
+
+bool isGood(float angle)
+{
+  return (angle*-1) < badAngle && angle < badAngle;
+}
 void setup() {
   Serial.begin(115200);
 
@@ -128,38 +138,81 @@ void loop() {
   // }
   getAngle();
   myData.id = imuID;
-  myData.data = angle;
+  // myData.data = angle;
 
   // use for poster graph
   //esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
 
   // Send message via ESP-NOW
-  if((angle*-1) > badAngle || angle > badAngle)
+  if(isBad(angle))
   {
-    // Serial.println("hola");
-    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-    if (result == ESP_OK) {
-      Serial.println("Sent with success");
-    }
-    else {
-      Serial.println("Error sending the data");
-    }
+    Serial.println("Bad");
+    Serial.println(badPostureCounts);
+    // Bad Posture for 3s -> start arm tapping
     badPostureCounts++;
+    //goodPostureCounts = 0;
+    // if(badPostureCounts > 6 && !badPosture)
+    if(badPostureCounts > 6)
+    {
+      // Dont need to constantly ping because esp_now_send flag ensures reliable conn
+      Serial.println("Trigger arm");
+      Serial.println(badPostureCounts);
+      myData.data = 1;
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+      if (result == ESP_OK) {
+        Serial.println("Sent with success");
+      }
+      else {
+        Serial.println("Error sending the data");
+        while(result != ESP_OK)
+        {
+          result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+        }
+      }
+      badPosture = true;
+      goodPostureCounts = 0;
+    }
   }
 
-//   if(angle <= badAngle && badPosture)
-//   {
-//     // send info to deal with good posture and desk arm to stop
-//     badPostureCounts = 0;
-//     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
-//     if (result == ESP_OK) {
-//       Serial.println("Sent with success");
-//     }
-//     else {
-//       Serial.println("Error sending the data");
-//     }
-//   }
+  if(isGood(angle))
+  {
+    Serial.println("Good");
+    // Good Posture for 5s -> stop arm tapping
+    goodPostureCounts++;
+    Serial.println(goodPostureCounts);
+    if(goodPostureCounts > 10 && badPosture)
+    {
+      Serial.println("Stop arm");
+      myData.data = 0;
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+      if (result == ESP_OK) {
+        Serial.println("Sent with success");
+      }
+      else {
+        Serial.println("Error sending the data");
+        while(result != ESP_OK)
+        {
+          result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+        }
+      }
+      badPosture = false;
+      badPostureCounts = 0;
+      goodPostureCounts = 0;
+    }
+    // send info to deal with good posture and desk arm to stop
+    
+    // badPostureCounts = 0;
+    // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+    // if (result == ESP_OK) {
+    //   Serial.println("Sent with success");
+    // }
+    // else {
+    //   Serial.println("Error sending the data");
+    // }
+  }
   delay(500);
 }
+
+
 
 

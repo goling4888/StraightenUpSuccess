@@ -18,7 +18,8 @@ const int BAD_CERVICAL_ANGLE=45;
 
 typedef struct struct_message {
     uint8_t id;
-    float data;
+    //float data;
+    uint8_t data;
 } struct_message;
 
 /**

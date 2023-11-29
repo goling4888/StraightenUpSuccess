@@ -8,7 +8,8 @@
 
 typedef struct struct_message {
   uint8_t id;
-  float data;
+  // float data;
+  uint8_t data; // 0 is good posture and 1 is bad
 }struct_message;
 
 // Motor A
@@ -22,7 +23,9 @@ const int pwmChannel = 0;
 const int resolution = 8;
 const int dutyCycle = 255;
 
+const int numSenders = 2;
 void driveMotor();
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len);
+bool isBad(float angle);
 
 #endif

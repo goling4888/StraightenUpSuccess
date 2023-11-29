@@ -8,11 +8,11 @@ using namespace std;
 struct_message myData;
 struct_message board1;
 struct_message board2;
-struct_message boardsStruct[2] = {board1, board2};
+struct_message boardsStruct[numSenders] = {board1, board2};
 
 int badPostureCounts;
 int initTime;
-
+int boardBool[numSenders];
 // Driving Motor code
 void driveMotor()
 {
@@ -51,10 +51,25 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   // Update the structures with the new incoming data
   boardsStruct[myData.id-1].data = myData.data;
   boardsStruct[myData.id-1].data = myData.data;
-  Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
+  //Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
+  Serial.printf("Data: %d \n", boardsStruct[myData.id-1].data);
   Serial.println();
 
-  driveMotor();
+  if(boardsStruct[myData.id-1].data == 1)
+  {
+    boardBool[myData.id-1] = 1;
+    
+    driveMotor();
+  }
+  if(boardsStruct[myData.id-1].data == 0)
+  //for(int i = 0; i < numSenders; i++)
+  {
+    boardBool[myData.id-1] = 0;
+    if(boardBool[0] == 1 || boardBool[1] == 1)
+    {
+      driveMotor();
+    }
+  }
   // badPostureCounts++;
   // if(badPostureCounts >= 6)
   // {
