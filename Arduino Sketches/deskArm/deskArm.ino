@@ -62,30 +62,44 @@ void driveMotor()
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
   char macStr[18];
-  Serial.print("Packet received from: ");
+  //Serial.print("Packet received from: ");
   snprintf(macStr, sizeof(macStr), "%02x:%02x:%02x:%02x:%02x:%02x",
            mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
-  Serial.println(macStr);
+  //Serial.println(macStr);
   memcpy(&myData, incomingData, sizeof(myData));
-  Serial.printf("Board ID %u: %u bytes\n", myData.id, len);
+  //Serial.printf("Board ID %u: %u bytes\n", myData.id, len);
   // Update the structures with the new incoming data
   boardsStruct[myData.id-1].data = myData.data;
   boardsStruct[myData.id-1].data = myData.data;
-  Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
-  Serial.println();
+  //Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
+  //Serial.println();
 
-  badPostureCounts++;
-  if(badPostureCounts >= 6)
-  {
-    // Activate motor/arm stuff here
+  float headVar;
+  // float cervVar;
+  // if(myData.id == 0)
+  // {
+  //   headVar = boardsStruct[myData.id-1].data;
+  // }
+  // else
+  // {
+  //   cervVar = boardsStruct[myData.id-1].data;
+  // }
 
-    if(goodPostureCounts < 10)
-    {
-      badPostureCounts = 0;
-      driveMotor();
-    }
+  Serial.println(boardsStruct[myData.id-1].data);
+  //Serial.print(" ");
+  //Serial.println(cervVar);
+  // badPostureCounts++;
+  // if(badPostureCounts >= 6)
+  // {
+  //   // Activate motor/arm stuff here
+
+  //   if(goodPostureCounts < 10)
+  //   {
+  //     badPostureCounts = 0;
+  //     driveMotor();
+  //   }
     
-  }
+  // }
 }
 
 void setup() {
@@ -118,7 +132,7 @@ void setup() {
 }
 
 void loop() {
-  //Serial.println("hola");
+  // Serial.println("hola");
 
   // int board1 = boardsStruct[0].data;
   // int board2 = boardsStruct[1].data;

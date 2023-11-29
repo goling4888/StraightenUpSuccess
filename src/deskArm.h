@@ -20,7 +20,7 @@ const int enable1Pin = 14;
 const int freq = 30000;
 const int pwmChannel = 0;
 const int resolution = 8;
-const int dutyCycle = 200;
+const int dutyCycle = 255;
 
 void driveMotor();
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len);

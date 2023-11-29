@@ -118,21 +118,25 @@ void setup() {
 }
 
 void loop() {
-  if(badAngle == BAD_CERVICAL_ANGLE)
-  {
-    Serial.println("I am cervical");
-  }
-  if(badAngle == BAD_HEAD_ANGLE)
-  {
-    Serial.println("I am head");
-  }
+  // if(badAngle == BAD_CERVICAL_ANGLE)
+  // {
+  //   Serial.println("I am cervical");
+  // }
+  // if(badAngle == BAD_HEAD_ANGLE)
+  // {
+  //   Serial.println("I am head");
+  // }
   getAngle();
   myData.id = imuID;
   myData.data = angle;
 
+  // use for poster graph
+  //esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+
   // Send message via ESP-NOW
   if((angle*-1) > badAngle || angle > badAngle)
   {
+    // Serial.println("hola");
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
     if (result == ESP_OK) {
       Serial.println("Sent with success");

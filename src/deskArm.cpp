@@ -1,5 +1,9 @@
 #include <Arduino.h>
 #include "deskArm.h"
+#include <iostream>
+#include <fstream>
+// #include <ofstream>
+using namespace std;
 
 struct_message myData;
 struct_message board1;
@@ -50,18 +54,19 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
   Serial.println();
 
-  badPostureCounts++;
-  if(badPostureCounts >= 6)
-  {
-    // Activate motor/arm stuff here
+  driveMotor();
+  // badPostureCounts++;
+  // if(badPostureCounts >= 6)
+  // {
+  //   // Activate motor/arm stuff here
 
-    // if(goodPostureCounts < 10)
-    // {
-    //   badPostureCounts = 0;
-    //   driveMotor();
-    // }
+  //   // if(goodPostureCounts < 10)
+  //   // {
+  //   //   badPostureCounts = 0;
+  //   //   driveMotor();
+  //   // }
     
-  }
+  // }
 }
 
 void setup() {
@@ -73,7 +78,8 @@ void setup() {
   
   // configure LED PWM functionalitites
   ledcSetup(pwmChannel, freq, resolution);
-  
+  ledcWrite(pwmChannel, dutyCycle);   
+
   // attach the channel to the GPIO to be controlled
   ledcAttachPin(enable1Pin, pwmChannel);
   Serial.begin(115200);
