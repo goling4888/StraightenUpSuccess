@@ -181,7 +181,7 @@ void loop() {
     goodPostureCounts++;
     Serial.println(goodPostureCounts);
     if(goodPostureCounts > 10 && badPosture)
-    {
+    { // Note for future: maybe dont keep coutn of good posture when we have good posture. ex) bad posture leads to good posture count only
       Serial.println("Stop arm");
       myData.data = 0;
       esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));

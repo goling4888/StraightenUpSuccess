@@ -10,9 +10,10 @@ struct_message board1;
 struct_message board2;
 struct_message boardsStruct[numSenders] = {board1, board2};
 
+int goodHeadPostureCount, goodCervPostureCount; // in terms of seconds
 int badPostureCounts;
 int initTime;
-int boardBool[numSenders];
+int boardBool[numSenders] = {0,0};
 // Driving Motor code
 void driveMotor()
 {
@@ -54,34 +55,45 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   //Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
   Serial.printf("Data: %d \n", boardsStruct[myData.id-1].data);
   Serial.println();
-
-  if(boardsStruct[myData.id-1].data == 1)
+  // Serial.printf("Note: 1) %d, 2) %d\n", boardBool[0],  boardBool[1]);
+  if(boardsStruct[myData.id-1].data != 0) // encoutering overflow somewhere
   {
+    // Anytime bad posture encountered, goodPostreCount reset to 0
+    if((myData.id - 1) == 0)
+    {
+      goodHeadPostureCount = 0;
+    }
+    if((myData.id - 1) == 1)
+    {
+      goodCervPostureCount = 0;
+    }
     boardBool[myData.id-1] = 1;
-    
     driveMotor();
   }
-  if(boardsStruct[myData.id-1].data == 0)
-  //for(int i = 0; i < numSenders; i++)
-  {
-    boardBool[myData.id-1] = 0;
-    if(boardBool[0] == 1 || boardBool[1] == 1)
-    {
-      driveMotor();
-    }
-  }
-  // badPostureCounts++;
-  // if(badPostureCounts >= 6)
+  // if(boardsStruct[myData.id-1].data == 0)
+  // //for(int i = 0; i < numSenders; i++)
   // {
-  //   // Activate motor/arm stuff here
-
-  //   // if(goodPostureCounts < 10)
-  //   // {
-  //   //   badPostureCounts = 0;
-  //   //   driveMotor();
-  //   // }
-    
+  //   boardBool[myData.id-1] = 0;
+  //   if(boardBool[0] != 0 || boardBool[1] != 0)
+  //   {
+  //     driveMotor();
+  //   }
   // }
+
+  // If no badPosture received for 5s, deactivate motor
+  // if(goodCervPostureCount > 10 && goodHeadPostureCount > 10)
+  // {
+  //   boardBool
+  //   Serial.println("we good");
+  // }
+  if(goodCervPostureCount > 10)
+  {
+    boardBool[0] = 0;
+  }
+  if(goodCervPostureCount > 10)
+  {
+    boardBool[1] = 0;
+  }
 }
 
 void setup() {
@@ -119,5 +131,8 @@ void loop() {
 
   // int board1 = boardsStruct[0].data;
   // int board2 = boardsStruct[1].data;
-
+  Serial.printf("Note: 1) %d, 2) %d\n", boardBool[0],  boardBool[1]);   //boardBool[0] is cervical
+  goodHeadPostureCount++; // Goodposturecount basically starts at 1. can change to -1 if want to
+  goodCervPostureCount++;
+  delay(1000);
 }
