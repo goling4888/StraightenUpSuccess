@@ -1,8 +1,6 @@
 #include <Arduino.h>
 #include "deskArm.h"
-#include <iostream>
-#include <fstream>
-// #include <ofstream>
+
 using namespace std;
 
 struct_message myData;
@@ -10,10 +8,16 @@ struct_message board1;
 struct_message board2;
 struct_message boardsStruct[numSenders] = {board1, board2};
 
-int goodHeadPostureCount, goodCervPostureCount; // in terms of seconds
-int badPostureCounts;
+// int goodHeadPostureCount, goodCervPostureCount; // in terms of seconds
+// int badPostureCounts;
 int initTime;
 int boardBool[numSenders] = {0,0};
+
+int lcdColumns = 16;
+int lcdRows = 2;
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+
+int badPostureCount = 0;
 // Driving Motor code
 void driveMotor()
 {
@@ -61,6 +65,10 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   {
     driveMotor();
   }
+  else if(boardsStruct[myData.id-1].data == 0)
+  {
+    badPostureCount++;
+  }
 
 }
 
@@ -75,6 +83,8 @@ void setup() {
   ledcSetup(pwmChannel, freq, resolution);
   ledcWrite(pwmChannel, dutyCycle);   
 
+  lcd.init();
+  lcd.backlight();
   // attach the channel to the GPIO to be controlled
   ledcAttachPin(enable1Pin, pwmChannel);
   Serial.begin(115200);
@@ -94,5 +104,16 @@ void setup() {
 }
 
 void loop() {
-
+  // set cursor to first column, first row
+  lcd.setCursor(0, 0);
+  // print message
+  lcd.print(String("Count:") + String(badPostureCount));
+  delay(1000);
+  // clears the display to print new message
+  lcd.clear();
+  // set cursor to first column, second row
+  lcd.setCursor(0,1);
+  lcd.print(String("Count:") + String(badPostureCount));
+  delay(1000);
+  lcd.clear(); 
 }
