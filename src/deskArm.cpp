@@ -52,48 +52,16 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   // Update the structures with the new incoming data
   boardsStruct[myData.id-1].data = myData.data;
   boardsStruct[myData.id-1].data = myData.data;
+
   //Serial.printf("Data: %5.2f \n", boardsStruct[myData.id-1].data);
   Serial.printf("Data: %d \n", boardsStruct[myData.id-1].data);
   Serial.println();
   // Serial.printf("Note: 1) %d, 2) %d\n", boardBool[0],  boardBool[1]);
-  if(boardsStruct[myData.id-1].data != 0) // encoutering overflow somewhere
+  if(boardsStruct[myData.id-1].data != 0) // encoutering overflow somewhere so instead of == 1 we do != 0
   {
-    // Anytime bad posture encountered, goodPostreCount reset to 0
-    if((myData.id - 1) == 0)
-    {
-      goodHeadPostureCount = 0;
-    }
-    if((myData.id - 1) == 1)
-    {
-      goodCervPostureCount = 0;
-    }
-    boardBool[myData.id-1] = 1;
     driveMotor();
   }
-  // if(boardsStruct[myData.id-1].data == 0)
-  // //for(int i = 0; i < numSenders; i++)
-  // {
-  //   boardBool[myData.id-1] = 0;
-  //   if(boardBool[0] != 0 || boardBool[1] != 0)
-  //   {
-  //     driveMotor();
-  //   }
-  // }
 
-  // If no badPosture received for 5s, deactivate motor
-  // if(goodCervPostureCount > 10 && goodHeadPostureCount > 10)
-  // {
-  //   boardBool
-  //   Serial.println("we good");
-  // }
-  if(goodCervPostureCount > 10)
-  {
-    boardBool[0] = 0;
-  }
-  if(goodCervPostureCount > 10)
-  {
-    boardBool[1] = 0;
-  }
 }
 
 void setup() {
@@ -123,16 +91,8 @@ void setup() {
   esp_now_register_recv_cb(OnDataRecv);
 
 
-
 }
 
 void loop() {
-  // Serial.println("hola");
 
-  // int board1 = boardsStruct[0].data;
-  // int board2 = boardsStruct[1].data;
-  Serial.printf("Note: 1) %d, 2) %d\n", boardBool[0],  boardBool[1]);   //boardBool[0] is cervical
-  goodHeadPostureCount++; // Goodposturecount basically starts at 1. can change to -1 if want to
-  goodCervPostureCount++;
-  delay(1000);
 }
