@@ -18,6 +18,9 @@ int lcdRows = 2;
 LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
 
 int badPostureCount = 0;
+int badPostureBool = 0;
+uint8_t boardTracker; // Used to keep track of board that started blocking
+
 // Driving Motor code
 void driveMotor()
 {
@@ -61,14 +64,23 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   Serial.printf("Data: %d \n", boardsStruct[myData.id-1].data);
   Serial.println();
   // Serial.printf("Note: 1) %d, 2) %d\n", boardBool[0],  boardBool[1]);
-  if(boardsStruct[myData.id-1].data != 0) // encoutering overflow somewhere so instead of == 1 we do != 0
+  if(boardsStruct[myData.id-1].data != 0)
   {
     driveMotor();
+    if(badPostureBool == 0)
+    {
+      boardTracker = myData.id;
+      badPostureBool = 1;
+    }
+    
   }
-  else if(boardsStruct[myData.id-1].data == 0)
+  else if(boardsStruct[myData.id-1].data == 0 && myData.id == boardTracker)
   {
+    // Stop Motor and b
+    badPostureBool = 0;
     badPostureCount++;
   }
+
 
 }
 
